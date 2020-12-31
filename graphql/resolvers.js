@@ -8,13 +8,27 @@ const { JWT_SECRET } = require("../config/env.json");
 
 module.exports = {
 	Query: {
-		getUsers: async () => {
+		getUsers: async (_, __, context) => {
 			try {
-				const users = await User.findAll();
+				let user;
+				if (context.req && context.req.headers.authorization) {
+					const token = context.req.headers.authorization.split("Bearer ")[1];
+					jwt.verify(token, JWT_SECRET, (err, decodedToken) => {
+						if (err) {
+							throw new AuthenticationError("Unauthenticated");
+						}
+						user = decodedToken;
+					});
+				}
+
+				const users = await User.findAll({
+					where: { username: { [Op.ne]: user.username } },
+				});
 
 				return users;
 			} catch (err) {
 				console.log(err);
+				throw err;
 			}
 		},
 		login: async (_, args) => {
