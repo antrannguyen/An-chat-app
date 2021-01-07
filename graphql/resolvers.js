@@ -32,7 +32,6 @@ module.exports = {
 			}
 		},
 		login: async (_, args) => {
-			//#4 o doan 16:30
 			const { username, password } = args;
 			let errors = {};
 
@@ -50,15 +49,15 @@ module.exports = {
 				});
 
 				if (!user) {
-					errors.username = "user not found";
-					throw new UserInputError("user not found", { errors });
+					errors.username = "User not found";
+					throw new UserInputError("User not found", { errors });
 				}
 
 				const correctPassword = await bcrypt.compare(password, user.password);
 
 				if (!correctPassword) {
-					errors.password = "password is incorrect";
-					throw new AuthenticationError("password is incorrect", { errors });
+					errors.password = "Password is incorrect";
+					throw new UserInputError("Password is incorrect", { errors });
 				}
 
 				const token = jwt.sign({ username }, JWT_SECRET, {
@@ -83,23 +82,34 @@ module.exports = {
 
 			try {
 				// Validate input data
-				if (email.trim() === "") errors.email = "email must not be empty";
+				if (email.trim() === "") errors.email = "Email must not be empty";
 				if (username.trim() === "")
-					errors.username = "username must not be empty";
+					errors.username = "Username must not be empty";
 				if (password.trim() === "")
-					errors.password = "password must not be empty";
+					errors.password = "Password must not be empty";
 				if (confirmPassword.trim() === "")
-					errors.confirmPassword = "repeat password must not be empty";
+					errors.confirmPassword = "Repeat password must not be empty";
 
 				if (password !== confirmPassword)
-					errors.confirmPassword = "passwords must match";
+					errors.confirmPassword = "Passwords must match";
+
+				// Check if username / email exists,
+				// going with this method because
+				// if something change in the errors from sequelize,
+				// the app is not crash
+
+				const userByUsername = await User.findOne({ where: { username } });
+				const userByEmail = await User.findOne({ where: { email } });
+
+				if (userByUsername) errors.username = "Username is taken";
+				if (userByEmail) errors.email = "Email is taken";
 
 				if (Object.keys(errors).length > 0) {
 					throw errors;
 				}
 
 				// Hash password
-				password = await bcrypt.hash(password, 10);
+				password = await bcrypt.hash(password, 6);
 
 				// Create user
 				const user = await User.create({
@@ -112,13 +122,16 @@ module.exports = {
 				return user;
 			} catch (err) {
 				console.log(err);
-				if (err.name === "SequelizeUniqueConstraintError") {
-					err.errors.forEach(
-						(e) => (errors[e.path] = `${e.value} is already taken`)
-					);
-					// } else if (err.name === "SequelizeValidationError") {
-					// 	err.errors.forEach((e) => (errors[e.path] = e.message));
-				}
+				// // This method is nice and neat
+				// // but for example the path infor now change that lead to the app not work well,
+				// // therefore should go with the first option
+				// if (err.name === "SequelizeUniqueConstraintError") {
+				// 	err.errors.forEach(
+				// 		(e) => (errors[e.path] = `${e.value} is already taken`)
+				// 	);
+				// } else if (err.name === "SequelizeValidationError") {
+				// 	err.errors.forEach((e) => (errors[e.path] = e.message));
+				// }
 				throw new UserInputError("Bad input", { errors });
 			}
 		},
