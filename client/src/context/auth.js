@@ -1,23 +1,25 @@
 import React, { createContext, useReducer, useContext } from "react";
-// import jwtDecode from "jwt-decode";
+import jwtDecode from "jwt-decode";
 
 //Create context for Auth, to optimizing the contexts, putting state and dispatch in different provider, this is alternative of using useMemo
 const AuthStateContext = createContext();
 const AuthDispatchContext = createContext();
 
-let user = null; //initialState for useReducer
+//initialState for useReducer
+let user = null;
 
-// const token = localStorage.getItem("token");
-// if (token) {
-// 	const decodedToken = jwtDecode(token);
-// 	const expiresAt = new Date(decodedToken.exp * 1000);
+//Set user fron the token received in the localStorage, so user dont lost when we refresh the data
+const token = localStorage.getItem("token");
+if (token) {
+	const decodedToken = jwtDecode(token);
+	const expiresAt = new Date(decodedToken.exp * 1000);
 
-// 	if (new Date() > expiresAt) {
-// 		localStorage.removeItem("token");
-// 	} else {
-// 		user = decodedToken;
-// 	}
-// } else console.log("No token found");
+	if (new Date() > expiresAt) {
+		localStorage.removeItem("token");
+	} else {
+		user = decodedToken;
+	}
+} else console.log("No token found");
 
 //reducer for useReducer
 const authReducer = (state, action) => {
