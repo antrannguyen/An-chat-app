@@ -3,6 +3,8 @@ import { Row, Col, Form, Button } from "react-bootstrap";
 import { gql, useLazyQuery } from "@apollo/client";
 import { Link } from "react-router-dom";
 
+import { useAuthDispatch } from "../context/auth";
+
 const LOGIN_USER = gql`
 	query login($username: String!, $password: String!) {
 		login(username: $username, password: $password) {
@@ -20,11 +22,16 @@ export default function Register(props) {
 		password: "",
 	});
 	const [errors, setErrors] = useState({});
+	const dispatch = useAuthDispatch();
 
+	//fetch GraphQL data in React with useQuery hook and attache the result to the UI
+	//useQuery React hook is  the primary API for executing quries in an Alollo aplication, it will return form Apollo Clients that contains loading, error, data
+	//useLazyQuery is executing queries in response to events, returns a function(loginUser) in its result tuble that you can call whenever you're are readu to excute the query
 	const [loginUser, { loading }] = useLazyQuery(LOGIN_USER, {
 		onError: (err) => setErrors(err.graphQLErrors[0].extensions.errors),
 		onCompleted(data) {
-			localStorage.setItem("token", data.login.token);
+			//payload: get data from the query provided by Apollo Client
+			dispatch({ type: "LOGIN", payload: data.login });
 			props.history.push("/");
 		},
 	});
