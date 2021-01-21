@@ -19,7 +19,7 @@ const LOGIN_USER = gql`
 export default function Register(props) {
 	const [variables, setVariables] = useState({
 		username: "",
-		password: "",
+		password: "123456",
 	});
 	const [errors, setErrors] = useState({});
 	const dispatch = useAuthDispatch();
