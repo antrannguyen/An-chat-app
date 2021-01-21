@@ -1,10 +1,12 @@
 import React, { createContext, useReducer, useContext } from "react";
 import jwtDecode from "jwt-decode";
 
+//Create context for Auth, to optimizing the contexts, putting state and dispatch in different provider, this is alternative of using useMemo
 const AuthStateContext = createContext();
 const AuthDispatchContext = createContext();
 
-let user = null;
+let user = null; //initialState for useReducer
+
 const token = localStorage.getItem("token");
 if (token) {
 	const decodedToken = jwtDecode(token);
@@ -17,6 +19,7 @@ if (token) {
 	}
 } else console.log("No token found");
 
+//reducer for useReducer
 const authReducer = (state, action) => {
 	switch (action.type) {
 		case "LOGIN":
@@ -37,10 +40,12 @@ const authReducer = (state, action) => {
 };
 
 export const AuthProvider = ({ children }) => {
-	const [state, dispatch] = useReducer(authReducer);
+	// use useState of useReducer to optimizing the context (useReducer(reducer, initialState))
+	const [state, dispatch] = useReducer(authReducer, { user });
 
 	return (
 		<AuthDispatchContext.Provider value={dispatch}>
+			{/* state must not undefined, meaning user should been return value | null */}
 			<AuthStateContext.Provider value={state}>
 				{children}
 			</AuthStateContext.Provider>
