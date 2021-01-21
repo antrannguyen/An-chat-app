@@ -3,8 +3,9 @@ const { UserInputError, AuthenticationError } = require("apollo-server");
 const jwt = require("jsonwebtoken");
 const { Op } = require("sequelize");
 
-const { User } = require("../../models");
+const { ChatContent, User } = require("../../models");
 const { JWT_SECRET } = require("../../config/env.json");
+const { Message } = require(".");
 
 module.exports = {
 	Query: {
@@ -12,8 +13,24 @@ module.exports = {
 			try {
 				if (!user) throw new AuthenticationError("Unauthenticated");
 
-				const users = await User.findAll({
+				let users = await User.findAll({
+					attributes: ["username", "imageUrl", "createdAt"],
 					where: { username: { [Op.ne]: user.username } },
+				});
+
+				const allUserMessages = await ChatContent.findAll({
+					where: {
+						[Op.or]: [{ from: user.username }, { to: user.username }],
+					},
+					order: [["createdAt", "DESC"]],
+				});
+
+				users = users.map((otherUser) => {
+					const latestMessage = allUserMessages.find(
+						(m) => m.from === otherUser.username || m.to === otherUser.username
+					);
+					otherUser.latestMessage = latestMessage;
+					return otherUser;
 				});
 
 				return users;
@@ -40,15 +57,15 @@ module.exports = {
 				});
 
 				if (!user) {
-					errors.username = "User not found";
-					throw new UserInputError("User not found", { errors });
+					errors.username = "user not found";
+					throw new UserInputError("user not found", { errors });
 				}
 
 				const correctPassword = await bcrypt.compare(password, user.password);
 
 				if (!correctPassword) {
-					errors.password = "Password is incorrect";
-					throw new UserInputError("Password is incorrect", { errors });
+					errors.password = "password is incorrect";
+					throw new UserInputError("password is incorrect", { errors });
 				}
 
 				const token = jwt.sign({ username }, JWT_SECRET, {
