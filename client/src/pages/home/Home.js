@@ -30,7 +30,7 @@ export default function Home({ history }) {
 			</Row>
 
 			<Row className="bg-white">
-				<Users setSelectedUser={setSelectedUser} />
+				<Users setSelectedUser={setSelectedUser} selectedUser={selectedUser} />
 				<ChatContent selectedUser={selectedUser} />
 			</Row>
 		</Fragment>
