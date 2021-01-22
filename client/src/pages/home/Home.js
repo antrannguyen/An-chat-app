@@ -1,9 +1,10 @@
-import React, { Fragment, useState, useEffect } from "react";
+import React, { useEffect, useState, Fragment } from "react";
 import { Row, Col, Button, Image } from "react-bootstrap";
 import { Link } from "react-router-dom";
 import { gql, useQuery, useLazyQuery } from "@apollo/client";
 
-import { useAuthDispatch } from "../context/auth";
+import { useAuthDispatch } from "../../context/auth";
+import Users from "./Users";
 
 const GET_USERS = gql`
 	query getUsers {
@@ -44,6 +45,7 @@ export default function Home({ history }) {
 	};
 
 	const { loading, data, error } = useQuery(GET_USERS);
+
 	const [
 		getMessages,
 		{ loading: messagesLoading, data: messagesData },
@@ -86,6 +88,7 @@ export default function Home({ history }) {
 			</div>
 		));
 	}
+
 	return (
 		<Fragment>
 			<Row className="bg-white justify-content-around mb-1">
@@ -100,13 +103,12 @@ export default function Home({ history }) {
 				</Button>
 			</Row>
 			<Row className="bg-white">
-				<Col xs={4} className="p-0 bg-secondary">
-					{usersMarkup}
-				</Col>
+				<Users setSelectedUser={setSelectedUser} />
+				{/* <ChatContent /> */}
 				<Col xs={8}>
 					{messagesData && messagesData.getMessages.length > 0 ? (
-						messagesData.getMessages.map((message, k) => (
-							<p key={k}>{message.content}</p>
+						messagesData.getMessages.map((message) => (
+							<p key={message.uuid}>{message.content}</p>
 						))
 					) : (
 						<p>Messages</p>
