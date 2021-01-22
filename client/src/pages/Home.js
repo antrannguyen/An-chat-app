@@ -1,5 +1,5 @@
 import React, { Fragment } from "react";
-import { Row, Col, Button } from "react-bootstrap";
+import { Row, Col, Button, Image } from "react-bootstrap";
 import { Link } from "react-router-dom";
 import { gql, useQuery } from "@apollo/client";
 
@@ -9,8 +9,15 @@ const GET_USERS = gql`
 	query getUsers {
 		getUsers {
 			username
-			email
 			createdAt
+			imageUrl
+			latestMessage {
+				uuid
+				from
+				to
+				content
+				createdAt
+			}
 		}
 	}
 `;
@@ -40,8 +47,25 @@ export default function Home({ history }) {
 		usersMarkup = <p>No users have joined yet</p>;
 	} else if (data.getUsers.length > 0) {
 		usersMarkup = data.getUsers.map((user) => (
-			<div key={user.username}>
-				<p>{user.username}</p>
+			<div
+				className="d-flex p-3"
+				key={user.username}
+				// onClick={() => setSelectedUser(user.username)}
+			>
+				<Image
+					src={user.imageUrl}
+					roundedCircle
+					className="mr-2"
+					style={{ width: 50, height: 50, objectFit: "cover" }}
+				/>
+				<div>
+					<p className="text-success">{user.username}</p>
+					<p className="font-weight-light">
+						{user.latestMessage
+							? user.latestMessage.content
+							: "You are now connected!"}
+					</p>
+				</div>
 			</div>
 		));
 	}
@@ -59,7 +83,9 @@ export default function Home({ history }) {
 				</Button>
 			</Row>
 			<Row className="bg-white">
-				<Col xs={4}>{usersMarkup}</Col>
+				<Col xs={4} className="p-0 bg-secondary">
+					{usersMarkup}
+				</Col>
 				<Col xs={8}>
 					<p>Messages</p>
 				</Col>

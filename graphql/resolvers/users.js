@@ -30,7 +30,7 @@ module.exports = {
 						(m) => m.from === otherUser.username || m.to === otherUser.username
 					);
 					otherUser.latestMessage = latestMessage;
-					return otherUser;
+					return latestMessageOfotherUser;
 				});
 
 				return users;
