@@ -8,7 +8,7 @@ const AuthDispatchContext = createContext();
 //initialState for useReducer
 let user = null;
 
-//Set user fron the token received in the localStorage, so user dont lost when we refresh the data
+//Set user fron the token received in the localStorage (reducer), so user data saved even after refresh the browser
 const token = localStorage.getItem("token");
 if (token) {
 	const decodedToken = jwtDecode(token);
@@ -42,7 +42,7 @@ const authReducer = (state, action) => {
 };
 
 export const AuthProvider = ({ children }) => {
-	// use useState of useReducer to optimizing the context (useReducer(reducer, initialState))
+	// use useReducer to optimizing the context (useReducer(reducer, initialState))
 	const [state, dispatch] = useReducer(authReducer, { user });
 
 	return (

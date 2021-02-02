@@ -8,7 +8,9 @@ const env = process.env.NODE_ENV || "development";
 const config = require(__dirname + "/../config/index.js")[env];
 const db = {};
 
+//Connecting to database
 let sequelize;
+//Identify which database configuration you wanna use .json or .env
 if (config.use_env_variable) {
 	sequelize = new Sequelize(process.env[config.use_env_variable], config);
 } else {

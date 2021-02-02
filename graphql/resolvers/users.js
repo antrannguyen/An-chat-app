@@ -5,7 +5,6 @@ const { Op } = require("sequelize");
 
 const { ChatContent, User } = require("../../models");
 const { JWT_SECRET } = require("../../config/env.json");
-const { Message } = require(".");
 
 module.exports = {
 	Query: {
