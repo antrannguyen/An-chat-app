@@ -3,6 +3,7 @@ import { Col } from "react-bootstrap";
 import { gql, useLazyQuery } from "@apollo/client";
 
 import { useMessageDispatch, useMessageState } from "../../context/message";
+import Message from "./Message";
 
 const GET_MESSAGES = gql`
 	query getMessages($from: String!) {
@@ -52,7 +53,7 @@ export default function ChatContent() {
 		selectedChatMarkup = <p>Loading ... </p>;
 	} else if (messages.length > 0) {
 		selectedChatMarkup = messages.map((message) => (
-			<p key={message.uuid}>{message.content}</p>
+			<Message message={message} />
 		));
 	} else if (messages.length === 0) {
 		selectedChatMarkup = (
