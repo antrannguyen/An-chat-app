@@ -45,7 +45,7 @@ export default function Users() {
 				<div
 					role="button"
 					className={classNames("user-div d-flex p-3", {
-						"bg-white": selected,
+						"bg-white": !selected,
 					})}
 					key={user.username}
 					onClick={() =>

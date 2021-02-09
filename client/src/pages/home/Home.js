@@ -1,4 +1,4 @@
-import React, { useState, Fragment } from "react";
+import React, { Fragment } from "react";
 import { Row, Button } from "react-bootstrap";
 import { Link } from "react-router-dom";
 
@@ -8,7 +8,6 @@ import ChatContent from "./ChatContent";
 
 export default function Home({ history }) {
 	const dispatch = useAuthDispatch();
-	const [selectedUser, setSelectedUser] = useState(null);
 
 	const logout = () => {
 		dispatch({ type: "LOGOUT" });
@@ -30,8 +29,8 @@ export default function Home({ history }) {
 			</Row>
 
 			<Row className="bg-white">
-				<Users setSelectedUser={setSelectedUser} selectedUser={selectedUser} />
-				<ChatContent selectedUser={selectedUser} />
+				<Users />
+				<ChatContent />
 			</Row>
 		</Fragment>
 	);
