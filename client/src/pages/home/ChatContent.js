@@ -1,8 +1,9 @@
-import React, { useEffect } from "react";
-import { Col } from "react-bootstrap";
+import React, { Fragment, useEffect } from "react";
 import { gql, useLazyQuery } from "@apollo/client";
+import { Col } from "react-bootstrap";
 
 import { useMessageDispatch, useMessageState } from "../../context/message";
+
 import Message from "./Message";
 
 const GET_MESSAGES = gql`
@@ -17,9 +18,10 @@ const GET_MESSAGES = gql`
 	}
 `;
 
-export default function ChatContent() {
+export default function Messages() {
 	const { users } = useMessageState();
 	const dispatch = useMessageDispatch();
+
 	const selectedUser = users?.find((u) => u.selected === true);
 	const messages = selectedUser?.messages;
 
@@ -29,7 +31,7 @@ export default function ChatContent() {
 	] = useLazyQuery(GET_MESSAGES);
 
 	useEffect(() => {
-		if (selectedUser && !selectedUser.message) {
+		if (selectedUser && !selectedUser.messages) {
 			getMessages({ variables: { from: selectedUser.username } });
 		}
 	}, [selectedUser]);
@@ -50,16 +52,25 @@ export default function ChatContent() {
 	if (!messages && !messagesLoading) {
 		selectedChatMarkup = <p>Select a friend</p>;
 	} else if (messagesLoading) {
-		selectedChatMarkup = <p>Loading ... </p>;
+		selectedChatMarkup = <p>Loading..</p>;
 	} else if (messages.length > 0) {
-		selectedChatMarkup = messages.map((message) => (
-			<Message message={message} />
+		selectedChatMarkup = messages.map((message, index) => (
+			<Fragment key={message.uuid}>
+				<Message message={message} />
+				{index === messages.length - 1 && (
+					<div className="invisible">
+						<hr className="m-0" />
+					</div>
+				)}
+			</Fragment>
 		));
 	} else if (messages.length === 0) {
-		selectedChatMarkup = (
-			<p>You are now connected! Send your first message! </p>
-		);
+		selectedChatMarkup = <p>You are now connected! send your first message!</p>;
 	}
 
-	return <Col xs={8}>{selectedChatMarkup}</Col>;
+	return (
+		<Col xs={10} md={8} className="messages-box d-flex flex-column-reverse">
+			{selectedChatMarkup}
+		</Col>
+	);
 }
