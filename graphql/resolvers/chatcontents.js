@@ -1,6 +1,11 @@
-const { UserInputError, AuthenticationError } = require("apollo-server");
+const {
+	UserInputError,
+	AuthenticationError,
+	PubSub,
+} = require("apollo-server");
 const { Op } = require("sequelize");
 
+const pubsub = new PubSub();
 const { ChatContent, User } = require("../../models");
 
 module.exports = {
@@ -53,12 +58,18 @@ module.exports = {
 					to,
 					content,
 				});
+				pubsub.publish("NEW_MESSAGE", { newMessage: message });
 
 				return message;
 			} catch (err) {
 				console.log(err);
 				throw err;
 			}
+		},
+	},
+	Subscription: {
+		newMessage: {
+			subscribe: () => pubsub.asyncIterator(["NEW_MESSAGE"]),
 		},
 	},
 };
